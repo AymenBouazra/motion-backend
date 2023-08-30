@@ -1,4 +1,4 @@
-const User = require('../models/auth');
+const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs')
@@ -26,7 +26,9 @@ exports.create = async (req, res) => {
         if (userExist) {
             res.status(400).json({ message: 'Utilisateur existe déjà avec cette adresse e-mail!' })
         } else {
-            // req.body.photo = 'http://localhost:4000/uploads/' + req.file.filename
+            if (req.file) {
+                req.body.photo = 'http://localhost:4000/uploads/' + req.file.filename
+            }
             const salt = bcrypt.genSaltSync(10);
             const hash = bcrypt.hashSync(req.body.password, salt)
             req.body.password = hash
@@ -48,13 +50,16 @@ exports.updateOne = async (req, res) => {
             const hash = bcrypt.hashSync(req.body.password, salt)
             req.body.password = hash
         }
+        console.log('====================================');
+        console.log(req.file);
+        console.log('====================================');
         if (req.file) {
-            // req.body.photo = 'http://localhost:4000/uploads/' + req.file.filename
-            // const fileName = path.basename(user.photo);
-            // const filePath = path.resolve('./uploads', fileName);
-            // if (fs.existsSync(filePath)) {
-            //     fs.unlinkSync(filePath);
-            // }
+            req.body.photo = 'http://localhost:4000/uploads/' + req.file.filename
+            const fileName = path.basename(user.photo);
+            const filePath = path.resolve('./uploads', fileName);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
         }
         await User.findByIdAndUpdate(req.params.id, req.body);
         res.json({ message: 'Utilisateur modifié avec succés!' })
@@ -66,12 +71,12 @@ exports.updateOne = async (req, res) => {
 
 exports.deleteOne = async (req, res) => {
     try {
-        // const user = await User.findById(req.params.id);
-        // const fileName = path.basename(user.photo);
-        // const filePath = path.resolve('./uploads', fileName);
-        // if (fs.existsSync(filePath)) {
-        //     fs.unlinkSync(filePath);
-        // }
+        const user = await User.findById(req.params.id);
+        const fileName = path.basename(user.photo);
+        const filePath = path.resolve('./uploads', fileName);
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
         await User.findByIdAndDelete(req.params.id);
         res.json({ message: 'Utilisateur supprimé avec succés!' })
     } catch (error) {
