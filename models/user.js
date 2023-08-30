@@ -8,6 +8,7 @@ const UserSchema = new Schema(
         email: { type: String, required: [true, 'Email est obligatoire'] },
         password: { type: String, required: [true, 'Password est obligatoire'] },
         photo: { type: String, default: 'https://i.imgur.com/lh8Sd5C.png' },
+        cloudinary_id: { type: String },
     }, {
     timestamps: true, versionKey: false
 }

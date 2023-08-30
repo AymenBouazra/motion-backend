@@ -2,6 +2,8 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs')
+const cloudinary = require("../utils/cloudinary");
+
 exports.list = async (req, res) => {
     try {
         const Users = await User.find();
@@ -27,7 +29,9 @@ exports.create = async (req, res) => {
             res.status(400).json({ message: 'Utilisateur existe déjà avec cette adresse e-mail!' })
         } else {
             if (req.file) {
-                req.body.photo = 'http://localhost:4000/uploads/' + req.file.filename
+                const result = await cloudinary.uploader.upload(req.file.path);
+                req.body.photo = result.secure_url
+                req.body.cloudinary_id = result.public_id
             }
             const salt = bcrypt.genSaltSync(10);
             const hash = bcrypt.hashSync(req.body.password, salt)
@@ -50,16 +54,19 @@ exports.updateOne = async (req, res) => {
             const hash = bcrypt.hashSync(req.body.password, salt)
             req.body.password = hash
         }
-        console.log('====================================');
-        console.log(req.file);
-        console.log('====================================');
         if (req.file) {
-            req.body.photo = 'http://localhost:4000/uploads/' + req.file.filename
-            const fileName = path.basename(user.photo);
-            const filePath = path.resolve('./uploads', fileName);
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
+
+            const result = await cloudinary.uploader.upload(req.file.path);
+
+            req.body.photo = result.secure_url
+            req.body.cloudinary_id = result.public_id
+
+            // req.body.photo = 'http://localhost:4000/uploads/' + req.file.filename
+            // const fileName = path.basename(user.photo);
+            // const filePath = path.resolve('./uploads', fileName);
+            // if (fs.existsSync(filePath)) {
+            //     fs.unlinkSync(filePath);
+            // }
         }
         await User.findByIdAndUpdate(req.params.id, req.body);
         res.json({ message: 'Utilisateur modifié avec succés!' })
