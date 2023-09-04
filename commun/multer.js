@@ -1,6 +1,9 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require('fs')
+const { promisify } = require('util')
 
+const deletefile = promisify(fs.unlink)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, './uploads');
@@ -12,7 +15,7 @@ const storage = multer.diskStorage({
 });
 
 function fileFilter(req, file, cb) {
-    const filetypes = /jpeg|jpg|png|gif/;
+    const filetypes = /jpeg|jpg|png|gif|webp|jiff/;
     // Check ext
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     // Check mime
@@ -31,4 +34,4 @@ const uploadImage = multer({
     limits: { fileSize: 100000000 }
 });
 
-module.exports = uploadImage;
+module.exports = { uploadImage, deletefile };

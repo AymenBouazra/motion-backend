@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const WorkSchema = new Schema({
-    title: String,
-    subtitle: String,
+    headerTitle: String,
+    breadcrumb: String,
     cover: Buffer,
+    title: String,
     description: String,
     clientInfos: {
         Client: String,
@@ -13,10 +14,9 @@ const WorkSchema = new Schema({
         Date: String,
         Website: String,
     },
-    productImages: [Buffer],
-    productQuotes: String,
-
-
+    pictures: [Buffer],
+    testimonial: String,
+    otherDetails: String
 }, {
     timestamps: true, versionKey: false
 })
