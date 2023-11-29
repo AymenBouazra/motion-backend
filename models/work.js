@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const WorkSchema = new Schema({
+    type: [String],
     headerTitle: String,
+    slug: String,
     breadcrumb: String,
     cover: String,
     title: String,
@@ -17,8 +19,6 @@ const WorkSchema = new Schema({
     pictures: [String],
     testimonial: String,
     otherDetails: String,
-    picturesSecureUrl: [],
-    picturescloudinary_id: []
 }, {
     timestamps: true, versionKey: false
 })

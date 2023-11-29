@@ -19,6 +19,14 @@ exports.getOne = async (req, res) => {
         res.status(500).json({ message: error.message || 'Server error!' })
     }
 }
+exports.getOneByslug = async (req, res) => {
+    try {
+        const work = await Work.findOne({ slug: req.params.slug });
+        res.json(work)
+    } catch (error) {
+        res.status(500).json({ message: error.message || 'Server error!' })
+    }
+}
 
 exports.create = async (req, res) => {
     try {
@@ -32,20 +40,22 @@ exports.create = async (req, res) => {
             Date,
             Website,
             testimonial,
-            otherDetails } = req.body
+            otherDetails,
+            slug,
+            type } = req.body
         let cover = ''
         let pictures = []
         const workExist = await Work.findOne({ headerTitle })
         if (workExist) {
             res.status(400).json({ message: 'Work already exist!' })
         } else {
-
             if (req.files) {
                 (req.files['pictures']).map((pic) => {
                     pictures.push(process.env.BACKEND_HOST + process.env.PORT + '/' + pic.path)
                 });
                 cover = process.env.BACKEND_HOST + process.env.PORT + '/' + req.files['cover'][0].path
             }
+            const formattedTypes = type.split(',')
             const work = {
                 headerTitle,
                 breadcrumb,
@@ -61,7 +71,9 @@ exports.create = async (req, res) => {
                 testimonial,
                 otherDetails,
                 cover,
-                pictures
+                pictures,
+                slug: slug[0],
+                type: formattedTypes
             }
             await Work.create(work);
             res.json({ message: 'Work created successfully!' })
