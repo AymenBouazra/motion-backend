@@ -6,7 +6,7 @@ const { promisify } = require('util')
 const deletefile = promisify(fs.unlink)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './uploads');
+        cb(null, `./uploads/${file.fieldname == 'cover' ? 'covers' : file.fieldname == 'pictures' ? 'works' : ''}`);
     },
     filename: (req, file, cb) => {
         const newFileName = Date.now() + path.extname(file.originalname);
@@ -15,10 +15,8 @@ const storage = multer.diskStorage({
 });
 
 function fileFilter(req, file, cb) {
-    const filetypes = /jpeg|jpg|png|gif|webp|jiff/;
-    // Check ext
+    const filetypes = /jpeg|jpg|png|gif|webp/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    // Check mime
     const mimetype = filetypes.test(file.mimetype);
     if (mimetype && extname) {
         return cb(null, true);
@@ -27,11 +25,10 @@ function fileFilter(req, file, cb) {
     }
 }
 
-// inside multer({}), file upto only 1MB can be uploaded
 const uploadImage = multer({
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 100000000 }
+    limits: { fileSize: 1000000000 }
 });
 
 module.exports = { uploadImage, deletefile };

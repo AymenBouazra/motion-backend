@@ -1,8 +1,6 @@
 const Work = require('../models/work');
-const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs')
-const cloudinary = require("../utils/cloudinary");
 
 exports.list = async (req, res) => {
     try {
@@ -24,23 +22,52 @@ exports.getOne = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { headerTitle } = req.body
-        const userExist = await Work.findOne({ headerTitle })
-        if (userExist) {
-            res.status(400).json({ message: 'Utilisateur existe déjà avec cette adresse e-mail!' })
+        const { headerTitle,
+            breadcrumb,
+            title,
+            description,
+            Client,
+            Industry,
+            Services,
+            Date,
+            Website,
+            testimonial,
+            otherDetails } = req.body
+        let cover = ''
+        let pictures = []
+        const workExist = await Work.findOne({ headerTitle })
+        if (workExist) {
+            res.status(400).json({ message: 'Work already exist!' })
         } else {
-            if (req.file) {
-                const result = await cloudinary.uploader.upload(req.file.path);
-                req.body.photo = result.secure_url
-                req.body.cloudinary_id = result.public_id
+
+            if (req.files) {
+                (req.files['pictures']).map((pic) => {
+                    pictures.push(process.env.BACKEND_HOST + process.env.PORT + '/' + pic.path)
+                });
+                cover = process.env.BACKEND_HOST + process.env.PORT + '/' + req.files['cover'][0].path
             }
-            const salt = bcrypt.genSaltSync(10);
-            const hash = bcrypt.hashSync(req.body.password, salt)
-            req.body.password = hash
-            await Work.create(req.body);
-            res.json({ message: 'Utilisateur créé avec succés!' })
+            const work = {
+                headerTitle,
+                breadcrumb,
+                title,
+                description,
+                clientInfos: {
+                    Client,
+                    Industry,
+                    Services,
+                    Date,
+                    Website,
+                },
+                testimonial,
+                otherDetails,
+                cover,
+                pictures
+            }
+            await Work.create(work);
+            res.json({ message: 'Work created successfully!' })
         }
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: error.message || 'Server error!' })
     }
 }
@@ -56,18 +83,6 @@ exports.updateOne = async (req, res) => {
             req.body.password = hash
         }
         if (req.file) {
-
-            const result = await cloudinary.uploader.upload(req.file.path);
-
-            req.body.photo = result.secure_url
-            req.body.cloudinary_id = result.public_id
-
-            // req.body.photo = 'http://localhost:4000/uploads/' + req.file.filename
-            // const fileName = path.basename(work.photo);
-            // const filePath = path.resolve('./uploads', fileName);
-            // if (fs.existsSync(filePath)) {
-            //     fs.unlinkSync(filePath);
-            // }
         }
         await Work.findByIdAndUpdate(req.params.id, req.body);
         res.json({ message: 'Utilisateur modifié avec succés!' })

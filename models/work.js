@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const WorkSchema = new Schema({
     headerTitle: String,
     breadcrumb: String,
-    cover: Buffer,
+    cover: String,
     title: String,
     description: String,
     clientInfos: {
@@ -14,9 +14,11 @@ const WorkSchema = new Schema({
         Date: String,
         Website: String,
     },
-    pictures: [Buffer],
+    pictures: [String],
     testimonial: String,
-    otherDetails: String
+    otherDetails: String,
+    picturesSecureUrl: [],
+    picturescloudinary_id: []
 }, {
     timestamps: true, versionKey: false
 })
