@@ -1,14 +1,14 @@
 const express = require('express');
-const { create, list, updateOne, getOne, getOneByslug, deleteOne } = require('../controllers/work.controller');
+const router = express.Router();
 const passport = require('passport');
 const { uploadImage } = require('../commun/multer');
-const router = express.Router();
+const { create, list, updateOne, getOne, getOneByslug, deleteOne } = require('../controllers/work.controller');
 
-router.post('/works', uploadImage.fields([{ name: 'cover', maxCount: 1 }, { name: 'pictures', maxCount: 10 }]), create)
 router.get('/works', passport.authenticate('bearer', { session: false }), list)
 router.get('/works-for-clientside', list)
 router.get('/works-for-clientside/:slug', getOneByslug)
-router.put('/works/:id', [passport.authenticate('bearer', { session: false }), uploadImage.single('cover'), uploadImage.array('pictures')], updateOne)
+router.post('/works', [passport.authenticate('bearer', { session: false }), uploadImage.fields([{ name: 'cover', maxCount: 1 }, { name: 'firstPictures', maxCount: 2 }, { name: 'firstBanner', maxCount: 1 }, { name: 'secondPictures', maxCount: 2 }, { name: 'secondBanner', maxCount: 1 }])], create)
+router.put('/works/:id', [passport.authenticate('bearer', { session: false }), uploadImage.fields([{ name: 'cover', maxCount: 1 }, { name: 'firstPictures', maxCount: 2 }, { name: 'firstBanner', maxCount: 1 }, { name: 'secondPictures', maxCount: 2 }, { name: 'secondBanner', maxCount: 1 }])], updateOne)
 router.get('/works/:id', passport.authenticate('bearer', { session: false }), getOne)
 router.delete('/works/:id', passport.authenticate('bearer', { session: false }), deleteOne)
 

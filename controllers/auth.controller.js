@@ -23,7 +23,7 @@ exports.login = async (req, res) => {
     try {
         const userExist = await userModel.findOne({ email: req.body.email });
         if (!userExist) {
-            return res.status(400).json({ message: 'Email ou mot de passe incorrect!' })
+            res.status(400).json({ message: 'Email ou mot de passe incorrect!' })
         } else {
             const isValid = compareSync(req.body.password, userExist.password)
             if (isValid) {
@@ -31,12 +31,22 @@ exports.login = async (req, res) => {
                     userId: userExist._id
                 }
                 const token = jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1d' });
-                return res.send({ message: 'Connecté avec succés!', token })
+                res.send({ message: 'Connecté avec succés!', token })
             } else {
-                return res.status(400).json({ message: 'Email ou mot de passe incorrect!' })
+                res.status(400).json({ message: 'Email ou mot de passe incorrect!' })
             }
         }
     } catch (error) {
         res.status(500).json({ message: error.message || 'Erreur serveur' })
     }
+}
+
+
+exports.logout = async (req, res, next) => {
+    req.logout((err) => {
+        if (err) {
+            return next(err)
+        }
+        res.json({ message: "Déconnecté avec succéss." })
+    });
 }
