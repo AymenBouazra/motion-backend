@@ -109,23 +109,33 @@ exports.updateOne = async (req, res) => {
             otherDetails,
             slug,
             type } = req.body
+
         let cover = ''
-        let pictures = []
-        const workFound = await Work.findById(req.params.id)
-        if (req.files['pictures']) {
-            console.log(req.files);
-            (req.files['pictures']).map((pic) => {
-                pictures.push(process.env.BACKEND_HOST + process.env.PORT + '/' + pic.path)
+        let firstBanner = ''
+        let secondBanner = ''
+        let firstPictures = []
+        let secondPictures = []
+        if (req.files['firstPictures']) {
+            (req.files['firstPictures']).map((pic) => {
+                firstPictures.push(process.env.BACKEND_HOST + process.env.PORT + '/' + pic.path)
             });
-        } else {
-            pictures = workFound.pictures
+        }
+        if (req.files['secondPictures']) {
+            (req.files['secondPictures']).map((pic) => {
+                secondPictures.push(process.env.BACKEND_HOST + process.env.PORT + '/' + pic.path)
+            });
         }
         if (req.files['cover']) {
             cover = process.env.BACKEND_HOST + process.env.PORT + '/' + req.files['cover'][0].path
-        } else {
-            cover = workFound.cover
+        }
+        if (req.files['firstBanner']) {
+            firstBanner = process.env.BACKEND_HOST + process.env.PORT + '/' + req.files['firstBanner'][0].path
+        }
+        if (req.files['secondBanner']) {
+            secondBanner = process.env.BACKEND_HOST + process.env.PORT + '/' + req.files['secondBanner'][0].path
         }
         const formattedTypes = type.split(',')
+        const workFound = await Work.findById(req.params.id)
         const work = {
             headerTitle,
             breadcrumb,
@@ -138,8 +148,11 @@ exports.updateOne = async (req, res) => {
             Website,
             testimonial,
             otherDetails,
-            cover,
-            pictures,
+            cover: cover != '' ? cover : workFound.cover,
+            firstBanner: firstBanner != '' ? firstBanner : workFound.firstBanner,
+            secondBanner: secondBanner != '' ? secondBanner : workFound.secondBanner,
+            firstPictures: firstPictures.length != 0 ? firstPictures : workFound.firstPictures,
+            secondPictures: secondPictures.length != 0 ? secondPictures : workFound.secondPictures,
             slug: slug[0],
             type: formattedTypes
         }
@@ -155,17 +168,35 @@ exports.deleteOne = async (req, res) => {
     try {
         const work = await Work.findById(req.params.id);
         const fileNameCover = path.basename(work.cover);
-        const filePath = path.resolve('./uploads/covers', fileNameCover);
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+        const fileNameFirstBanner = path.basename(work.firstBanner);
+        const fileNameSecondBanner = path.basename(work.secondBanner);
+        const filePathCover = path.resolve('./uploads/covers', fileNameCover);
+        const filePathFirstBanner = path.resolve('./uploads/works', fileNameFirstBanner);
+        const filePathSecondBanner = path.resolve('./uploads/works', fileNameSecondBanner);
+        if (fs.existsSync(filePathCover)) {
+            fs.unlinkSync(filePathCover);
         }
-        work.pictures.map((picture) => {
+        if (fs.existsSync(filePathFirstBanner)) {
+            fs.unlinkSync(filePathFirstBanner);
+        }
+        if (fs.existsSync(filePathSecondBanner)) {
+            fs.unlinkSync(filePathSecondBanner);
+        }
+        work.firstPictures.map((picture) => {
             const fileName = path.basename(picture)
             const filePathPicture = path.resolve('./uploads/works', fileName);
             if (fs.existsSync(filePathPicture)) {
                 fs.unlinkSync(filePathPicture);
             }
         })
+        work.secondPictures.map((picture) => {
+            const fileName = path.basename(picture)
+            const filePathPicture = path.resolve('./uploads/works', fileName);
+            if (fs.existsSync(filePathPicture)) {
+                fs.unlinkSync(filePathPicture);
+            }
+        })
+
         await Work.findByIdAndDelete(req.params.id);
         res.json({ message: 'Utilisateur supprimé avec succés!' })
     } catch (error) {

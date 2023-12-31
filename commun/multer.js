@@ -6,7 +6,7 @@ const { promisify } = require('util')
 const deletefile = promisify(fs.unlink)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, `./uploads/${file.fieldname == 'cover' ? 'covers' : file.fieldname == 'pictures' ? 'works' : ''}`);
+        cb(null, `./uploads/${file.fieldname == 'cover' ? 'covers' : ['firstBanner', 'secondBanner', 'firstPictures', 'secondPictures'].includes(file.fieldname) ? 'works' : ''}`);
     },
     filename: (req, file, cb) => {
         const newFileName = Date.now() + path.extname(file.originalname);
