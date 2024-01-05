@@ -82,7 +82,7 @@ exports.create = async (req, res) => {
                 secondBanner,
                 firstPictures,
                 secondPictures,
-                slug: slug[0],
+                slug: slug,
                 type: formattedTypes
             }
             await Work.create(work);
