@@ -9,7 +9,7 @@ const session = require('express-session');
 const port = process.env.PORT || 4000
 
 const corsOptions = {
-    origin: 'https://motion-agency.vercel.app',
+    origin: 'https://motion-agency-azure.vercel.app',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
@@ -19,7 +19,7 @@ require('./database/db')
 require('./commun/initScript')
 require('./middlewares/Bearer')
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://motion-agency.vercel.app');
+    res.setHeader('Access-Control-Allow-Origin', 'https://motion-agency-azure.vercel.app');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
